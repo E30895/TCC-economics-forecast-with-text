@@ -73,7 +73,6 @@ industria_tepu = get_tepu(industria_tokens, tepu_dict) %>% get_normalize(type = 
 dataset_economic = dataset[-c(1)]
 dataset_economic = get_stationarity(dataset_economic)
 dataset_economic = do.call(cbind, dataset_economic$results) %>% as.data.frame()
-#save(dataset_economic, file = "Datasets\\dataset_economic.Rdata")
 
 
 #DATASET TEXT-BASE
@@ -92,7 +91,6 @@ dataset_tb = data.frame(
 
 dataset_tb = get_stationarity(dataset_tb)
 dataset_tb = do.call(cbind, dataset_tb$results) %>% as.data.frame()
-save(dataset_tb, file = "Datasets\\dataset_tb.Rdata")
 
 #DATASET ECONOMIC-TEXT-BASE
 dataset_economic_tb = cbind(dataset_economic, 
@@ -109,17 +107,11 @@ dataset_economic_tb = cbind(dataset_economic,
 
 dataset_economic_tb = get_stationarity(dataset_economic_tb)
 dataset_economic_tb = do.call(cbind, dataset_economic_tb$results) %>% as.data.frame()
-save(dataset_economic_tb, file = "Datasets\\dataset_economic_tb.Rdata")
 
 
 ##################################################
 ################# Forecasting ####################
 ##################################################
-
-#LOAD DATASETS FOR SKIP INIT PROCESS
-#load("Datasets\\dataset_economic.Rdata")
-#load("Datasets\\dataset_tb.Rdata")
-#load("Datasets\\dataset_economic_tb.Rdata")
 
 #BENCHMARK
 benchmark = call_models(dataset_economic, 'Sarima', get_sarima, "BZEAMOM%")
@@ -139,43 +131,22 @@ lasso_economic_tb = call_models(dataset_economic_tb, 'Lasso', get_lasso, "BZEAMO
 enet_economic_tb = call_models(dataset_economic_tb, 'Enet', get_elasticnet, "BZEAMOM%")
 boosting_economic_tb = call_models(dataset_economic_tb, 'Boosting', get_boosting, "BZEAMOM%") 
 
-lasso_tb$rmse
-boosting_tb$rmse
-
-#save(
-#  lasso_tb,
-#  enet_tb,
-#  boosting_tb,
-#  lasso_economic,
-#  enet_economic,
-#  boosting_economic,
-#  lasso_economic_tb,
-#  enet_economic_tb,
-#  boosting_economic_tb,
-#  file = "Forecasting\\models_forecasting_new.Rdata"
-#)
-
-
 ##################################################
 ############ Diebold-Mariano Test ################
 ##################################################
-#LOAD DATA FOR SKIP PROCESS
-#load("Forecasting\\models_forecasting.Rdata")
-#load("Datasets\\dataset_economic.Rdata")
-#load("Datasets\\dataset_tb.Rdata")
-#load("Datasets\\dataset_economic_tb.Rdata")
 
-#COMPUTING DM TEST
 dm_tests = compute_dm()
-dm_tests$pvalues_eco_tb
 
+##################################################
+############ Giacomini-White Test ################
+##################################################
+
+gw_tests = compute_gw()
 
 
 ##################################################
 #################### CSFE ########################
 ##################################################
-#load("Forecasting\\models_forecasting_new.Rdata")
-#benchmark = call_models(dataset_economic, 'Sarima', get_sarima, "BZEAMOM%")
 
 csfe_boosting_tb = csfe(boosting_tb, benchmark, dataset_economic$`BZEAMOM%`[124:164])
 csfe_lasso_tb = csfe(lasso_tb, benchmark, dataset_economic$`BZEAMOM%`[124:164])
@@ -188,52 +159,5 @@ csfe_enet_economic = csfe(enet_economic, benchmark, dataset_economic$`BZEAMOM%`[
 csfe_boosting_economic_tb = csfe(boosting_economic_tb, benchmark, dataset_economic$`BZEAMOM%`[124:164])
 csfe_lasso_economic_tb = csfe(lasso_economic_tb, benchmark, dataset_economic$`BZEAMOM%`[124:164])
 csfe_enet_economic_tb = csfe(enet_economic_tb, benchmark, dataset_economic$`BZEAMOM%`[124:164])
-
-
-##################################################
-############ Giacomini-White Test ################
-##################################################
-#LOAD DATA FOR SKIP PROCESS
-#load("Forecasting\\models_forecasting_new.Rdata")
-#load("Datasets\\dataset_economic.Rdata")
-#load("Datasets\\dataset_tb.Rdata")
-#load("Datasets\\dataset_economic_tb.Rdata")
-
-#COMPUTING GW TEST
-gw_tests = compute_gw()
-gw_tests$pvalues_tb
-
-benchmark$forecasts
-
-
-################################################
-#GRAFICOS TESI
-plot.ts(agronegocio_tesi$TESI_Z)
-plot.ts(mercadoF_tesi$TESI_Z)
-plot.ts(mercadoT_tesi$TESI_Z)
-plot.ts(servicos_tesi$TESI_Z)
-plot.ts(industria_tesi$TESI_Z)
-
-#GRAFICOS TEPU
-plot(x = agronegocio_tepu$Data, y = agronegocio_tepu$TEPU_Z, main = "TEPU - AGRONEGOCIO", type = 'lines')
-plot(x = mercadoF_tepu$Data, y = mercadoF_tepu$TEPU_Z, main = "TEPU - MERCADO FINANCEIRO", type = 'lines')
-plot(x = mercadoT_tepu$Data, y = mercadoT_tepu$TEPU_Z, main = "TEPU - MERCADO DE TRABALHO", type = 'lines')
-plot(x = servicos_tepu$Data, y = servicos_tepu$TEPU_Z, main = "TEPU - SERVIÇOS", type = 'lines')
-plot(x = industria_tepu$Data, y = industria_tepu$TEPU_Z, main = "TEPU - INDÚSTRIA", type = 'lines')
-
-save(dataset.notext, file = "dataset_notext.Rdata")
-save(dataset_merged_stationary, file = "dataset_text.Rdata")
-
-save(agronegocio_tesi, file = ".agronegocio_tesi.Rdata")
-save(mercadoF_tesi, file = ".mercadoF_tesi.Rdata")
-save(mercadoT_tesi, file = ".mercadoT_tesi.Rdata")
-save(servicos_tesi, file = ".servicos_tesi.Rdata")
-save(industria_tesi, file = ".industria_tesi.Rdata")
-
-save(agronegocio_tepu, file = ".agronegocio_tepu.Rdata")
-save(mercadoF_tepu, file = ".mercadoF_tepu.Rdata")
-save(mercadoT_tepu, file = ".mercadoT_tepu.Rdata")
-save(servicos_tepu, file = ".servicos_tepu.Rdata")
-save(industria_tepu, file = ".industria_tepu.Rdata")
 
 

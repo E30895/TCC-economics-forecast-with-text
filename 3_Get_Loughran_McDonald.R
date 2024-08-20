@@ -52,7 +52,6 @@ get_tepu_dict = function(){
   #' @note
   #' O dicionário gerado pode ser utilizado em análises de sentimento ou categorização de texto, especialmente em estudos que envolvem linguagem econômica e política.
   #'
-  #'
   #' @examples
   #' # Gerar o dicionário TEPU e visualizar os primeiros termos
   #' tepu_dict <- get_tepu_dict()

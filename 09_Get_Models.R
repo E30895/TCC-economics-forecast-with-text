@@ -4,6 +4,18 @@
 ###############################################
 
 f_rmse = function(x, y){
+  
+  #' Cálculo do Erro Quadrático Médio (RMSE)
+  #'
+  #' Esta função calcula a raiz do erro quadrático médio entre duas séries de valores.
+  #'
+  #' @param x Um vetor de valores previstos.
+  #' @param y Um vetor de valores reais.
+  #' @return O valor do erro quadrático médio entre as duas séries de valores.
+  #'
+  #' @examples
+  #' f_rmse(c(2, 3, 5), c(1, 2, 6)) # Retorna a RMSE entre os vetores
+  
   sqrt(mean((x - y)^2))
 }
 
@@ -13,6 +25,19 @@ f_rmse = function(x, y){
 ###############################################
 
 f_me = function(x,y){
+  
+  #' Cálculo do Erro Médio
+  #'
+  #' Esta função calcula o erro médio entre duas séries de valores.
+  #'
+  #' @param x Um vetor de valores previstos.
+  #' @param y Um vetor de valores reais.
+  #' @return O valor do erro médio entre as duas séries de valores.
+  #'
+  #' @examples
+  #' f_me(c(2, 3, 5), c(1, 2, 6)) # Retorna o erro médio entre os vetores
+  
+  
   mean(y - x)
 }
 
@@ -21,6 +46,21 @@ f_me = function(x,y){
 ###############################################
 
 get_sarima = function(ind, df, variable, horizon, n_lags){
+  
+  #' Ajuste de Modelo SARIMA
+  #'
+  #' Esta função ajusta um modelo SARIMA aos dados fornecidos e gera previsões.
+  #'
+  #' @param ind Índices das observações a serem utilizadas.
+  #' @param df Um data.frame contendo os dados.
+  #' @param variable Nome da variável dependente a ser modelada.
+  #' @param horizon Horizonte de previsão.
+  #' @param n_lags Número de defasagens a serem usadas na modelagem.
+  #' @return Uma lista contendo as previsões do modelo SARIMA.
+  #'
+  #' @examples
+  #' results <- get_sarima(ind = 1:100, df = my_data, variable = "sales", horizon = 10, n_lags = 4)
+  
   
   library(tidyverse)
   library(forecast)
@@ -64,6 +104,20 @@ get_sarima = function(ind, df, variable, horizon, n_lags){
 
 get_lasso = function(ind, df, variable, horizon, n_lags){
   
+  #' Ajuste de Modelo Lasso
+  #'
+  #' Esta função ajusta um modelo de regressão Lasso aos dados fornecidos e gera previsões.
+  #'
+  #' @param ind Índices das observações a serem utilizadas.
+  #' @param df Um data.frame contendo os dados.
+  #' @param variable Nome da variável dependente a ser modelada.
+  #' @param horizon Horizonte de previsão.
+  #' @param n_lags Número de defasagens a serem usadas na modelagem.
+  #' @return Uma lista contendo as previsões do modelo Lasso.
+  #'
+  #' @examples
+  #' results <- get_lasso(ind = 1:100, df = my_data, variable = "sales", horizon = 10, n_lags = 4)
+  
   set.seed(100)
   
   library(glmnet)
@@ -71,7 +125,8 @@ get_lasso = function(ind, df, variable, horizon, n_lags){
   
   #PREPARANDO OS DADOS
   data_in = dataprep(
-    type = 'tb',
+    type = 'default',
+    #type = 'tb',
     ind = ind,
     df = df,
     variable = variable,
@@ -119,13 +174,30 @@ get_lasso = function(ind, df, variable, horizon, n_lags){
 ###############################################
 
 get_elasticnet <- function(ind, df, variable, horizon, n_lags) {
+  
+  
+  #' Ajuste de Modelo Elastic Net
+  #'
+  #' Esta função ajusta um modelo Elastic Net aos dados fornecidos e gera previsões.
+  #'
+  #' @param ind Índices das observações a serem utilizadas.
+  #' @param df Um data.frame contendo os dados.
+  #' @param variable Nome da variável dependente a ser modelada.
+  #' @param horizon Horizonte de previsão.
+  #' @param n_lags Número de defasagens a serem usadas na modelagem.
+  #' @return Uma lista contendo as previsões do modelo Elastic Net.
+  #'
+  #' @examples
+  #' re
+  
   library(forecast)
   library(glmnet)
   library(caret)
   
   # PREPARANDO OS DADOS
   data_in <- dataprep(
-    type = 'tb',
+    type = 'default',
+    #type = 'tb',
     ind = ind,
     df = df,
     variable = variable,
@@ -187,68 +259,28 @@ get_elasticnet <- function(ind, df, variable, horizon, n_lags) {
   
   return(results)
 }
+
 ###############################################
 ############ BOOSTING FUNCTION ################
 ###############################################
 
-#get_boosting = function(ind, df, variable, horizon, n_lags) {
-#  
-#  library(mboost)
-#  library(forecast)
-#  
-#  # INICIALIZACAO DE VARIAVEIS
-#  set.seed(100)
-#  
-#  data_in = dataprep(
-#    type = 'tb',
-#    ind = ind,
-#    df = df,
-#    variable = variable,
-#    horizon = horizon,
-#    n_lags = n_lags
-#  )
-#  
-#  y_in = data_in$y_in
-#  x_in = data_in$x_in
-#  x_out = data_in$x_out
-#  
-#  # AJUSTE DO MODELO DE BOOSTING
-#  reg_full = glmboost(
-#    y = y_in,
-#    x = as.matrix(x_in),
-#    # offset = 0,
-#    center = TRUE,
-#    control = boost_control(mstop = 100, nu = 0.1)
-#  )
-#  
-#  # DETERMINACAO DO NUMERO OTIMO DE ITERACOES
-#  cv10f = cv(model.weights(reg_full), type = "kfold", B = 5)
-#  cv_seq = cvrisk(reg_full, folds = cv10f, papply = lapply)
-#  m_opt = mstop(cv_seq)
-#  
-#  # AJUSTE DO MODELO COM O NUMERO OTIMO DE ITERACOES
-#  
-#  reg_opt = reg_full[m_opt]
-#  
-#  # PREVISAO PARA A JANELA DE TESTE
-#  opt_boosting = predict(
-#    object = reg_opt,
-#    newdata = matrix(x_out, nrow = 1)
-#  )
-#  
-#  # RESULTADOS
-#  results = list(
-#    forecast = opt_boosting,
-#    outputs = list(
-#      m_opt = m_opt,
-#      reg_opt = reg_opt
-#    )
-#  )
-#  return(results)
-#}
-
-
 get_boosting <- function(ind, df, variable, horizon, n_lags) {
+  
+  #' Ajuste de Modelo de Boosting
+  #'
+  #' Esta função ajusta um modelo de boosting aos dados fornecidos e gera previsões.
+  #'
+  #' @param ind Índices das observações a serem utilizadas.
+  #' @param df Um data.frame contendo os dados.
+  #' @param variable Nome da variável dependente a ser modelada.
+  #' @param horizon Horizonte de previsão.
+  #' @param n_lags Número de defasagens a serem usadas na modelagem.
+  #' @return Uma lista contendo as previsões do modelo de boosting e informações sobre o modelo ajustado.
+  #'
+  #' @examples
+  #' results <- get_boosting(ind = 1:100, df = my_data, variable = "sales", horizon = 10, n_lags = 4)
+  
+  
   library(mboost)
   library(forecast)
   
@@ -256,7 +288,8 @@ get_boosting <- function(ind, df, variable, horizon, n_lags) {
   set.seed(100)
   
   data_in <- dataprep(
-    type = 'tb',
+    type = 'default',
+    #type = 'tb',
     ind = ind,
     df = df,
     variable = variable,

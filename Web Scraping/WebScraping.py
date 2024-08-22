@@ -18,25 +18,35 @@ def create_dataset():
   return pd.DataFrame(columns = ['Data', 'endereco'])
 
 
-
-
 def all_days_since(since: str):
-
     """
-    Creates a list of dates with all days since a given date.
-    The start_date parameter must be a string date with the format: '%Y-%m-%d'
-    """
+    Creates a list of dates starting from a given date up to today.
 
+    Args:
+        since (str): The starting date in the format '%Y-%m-%d'.
+
+    Returns:
+        pd.DatetimeIndex: A list of dates from the start date to today.
+    """
     return pd.date_range(start=since, end=datetime.datetime.today().strftime('%Y-%m-%d'))
 
 
 
 
 def get_request_page(q: str, date: str, source: str):
-
+  
     """
-    Solicita a URL de pesquisa da fonte especificada (por exemplo, 'g1' ou 'valor econômico') 
-    e retorna o objeto de solicitação se o status_code for igual a 200.
+    Requests a search URL from the specified source (e.g., 'g1' or 'valor econômico') and returns the request object 
+    if the status_code is 200.
+
+    Args:
+        q (str): The search query.
+        date (str): The date to filter news articles.
+        source (str): The source of the news articles (e.g., 'g1', 'valor').
+
+    Returns:
+        tuple: A tuple containing the request object and the search query if successful, 
+               or (False, q) if an error occurs.
     """
 
     url = ""

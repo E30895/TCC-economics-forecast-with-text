@@ -16,17 +16,35 @@ from bs4 import BeautifulSoup
 
 
 
-
 def drop_duplicate_news(dataset):
+    """
+    Remove notícias duplicadas no dataset com base na coluna 'Texto' e ordena por 'Data'.
+
+    Args:
+        dataset (pd.DataFrame): O dataset contendo as notícias.
+
+    Returns:
+        pd.DataFrame: O dataset sem notícias duplicadas e ordenado por 'Data'.
+    """
     dataset= dataset.groupby('Texto', as_index=False).first()
     dataset = dataset.sort_values(by=['Data'])
     dataset = dataset[['Data', 'endereco', 'Texto', 'Num_Palavras-Chave']]
     return dataset
 
 
-
-
 def remove_useless(dataset, q, min_crit=1):
+    """
+    Remove textos irrelevantes no dataset com base no número de palavras-chave encontradas.
+
+    Args:
+        dataset (pd.DataFrame): O dataset contendo as notícias.
+        q (str): Categoria de pesquisa (ex: 'Agronegócio', 'Indústria', etc.).
+        min_crit (int, opcional): Número mínimo de palavras-chave para considerar o texto relevante. 
+                                  O padrão é 1.
+
+    Returns:
+        pd.DataFrame: O dataset filtrado, contendo apenas textos relevantes.
+    """
 
     if q == 'Agronegócio':
         palavras_chave = ['Agronegócio',
@@ -152,6 +170,15 @@ def remove_useless(dataset, q, min_crit=1):
     return dataset
 
 def translate(textos):
+    """
+    Traduz os textos do português para o inglês.
+
+    Args:
+        textos (pd.DataFrame): O dataset contendo os textos em português.
+
+    Returns:
+        pd.DataFrame: O dataset com uma nova coluna 'Traducao' contendo os textos traduzidos.
+    """
 
     lista_textos = list(textos['Texto'])
     list_tradução = []
@@ -187,6 +214,15 @@ def translate(textos):
 
 
 def remove_stopwords_br(text):
+    """
+    Remove stopwords em português de um texto.
+
+    Args:
+        text (str): O texto a ser processado.
+
+    Returns:
+        str: O texto sem as stopwords em português.
+    """
     stop_words_pt = set(stopwords.words('portuguese'))    
     tokens = word_tokenize(text)
     filtered_tokens = [word for word in tokens if word.lower() not in stop_words_pt]
@@ -196,6 +232,15 @@ def remove_stopwords_br(text):
 
 
 def remove_stopwords_en(text):
+    """
+    Remove stopwords em inglês de um texto.
+
+    Args:
+        text (str): O texto a ser processado.
+
+    Returns:
+        str: O texto sem as stopwords em inglês.
+    """
     stop_words_pt = set(stopwords.words('english'))    
     tokens = word_tokenize(text)
     filtered_tokens = [word for word in tokens if word.lower() not in stop_words_pt]
@@ -205,6 +250,15 @@ def remove_stopwords_en(text):
 
 
 def remove_pontuaiton(text):
+    """
+    Remove a pontuação de um texto.
+
+    Args:
+        text (str): O texto a ser processado.
+
+    Returns:
+        str: O texto sem pontuação.
+    """
     punctuation = set(string.punctuation)
     for i in text:
         if i in punctuation:
@@ -213,15 +267,32 @@ def remove_pontuaiton(text):
     return text
 
 
-
-
 def remove_numbers(text):
+
+    """
+    Remove números de um texto.
+
+    Args:
+        text (str): O texto a ser processado.
+
+    Returns:
+        str: O texto sem números.
+    """
+    
     string = text
     return ''.join(filter(lambda z: not z.isdigit(), string))
 
 
-
 def remove_expressoes(text):
+    """
+    Remove expressões e caracteres indesejados de um texto.
+
+    Args:
+        text (str): O texto a ser processado.
+
+    Returns:
+        str: O texto limpo, sem expressões e caracteres indesejados.
+    """
     text = re.sub(r"\n", " ", text)
     text = re.sub(r'\r', " ", text)
     text = re.sub(r'-', ' ', text)
@@ -231,9 +302,18 @@ def remove_expressoes(text):
     return text
 
 
-
-
 def tratamento(dataset, q):
+    """
+    Realiza o tratamento completo dos textos no dataset, incluindo remoção de duplicatas, 
+    tradução, limpeza de expressões e stopwords.
+
+    Args:
+        dataset (pd.DataFrame): O dataset contendo os textos.
+        q (str): Categoria de pesquisa (ex: 'Agronegócio', 'Indústria', etc.).
+
+    Returns:
+        pd.DataFrame: O dataset tratado e salvo em um arquivo Excel.
+    """
     print("Iniciando Tratamento")
     dataset = remove_useless(dataset, q)
     dataset = drop_duplicate_news(dataset)
